@@ -1,34 +1,44 @@
 // App.js
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useDropzone } from 'react-dropzone';
+import axios from 'axios';
 
-const App = () => {
-  const [images, setImages] = useState([]);
+function App() {
+  const [uploadedImageUrl, setUploadedImageUrl] = useState('');
 
-  useEffect(() => {
-    fetch('http://localhost:3000/api/images')
-      .then((response) => response.json())
-      .then((data) => {
-        setImages(data.images);
-      })
-      .catch((error) => {
-        console.error('Error fetching images:', error);
+  const onDrop = async (acceptedFiles) => {
+    try {
+      const formData = new FormData();
+      formData.append('image', acceptedFiles[0]);
+
+      const response = await axios.post('/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       });
-  }, []);
+
+      setUploadedImageUrl(response.data.url);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
   return (
     <div>
-      <h1>Image Gallery</h1>
-      <ul>
-        {images.map((image) => (
-          <li key={image.id}>
-            <img src={image.url} alt={image.title} />
-            <p>{image.title}</p>
-          </li>
-        ))}
-      </ul>
+      <div {...getRootProps()}>
+        <input {...getInputProps()} />
+        {isDragActive ? (
+          <p>Drop the image here...</p>
+        ) : (
+          <p>Drag and drop an image, or click to select a file</p>
+        )}
+      </div>
+      {uploadedImageUrl && <img src={uploadedImageUrl} alt="Uploaded Image" />}
     </div>
   );
-};
+}
 
 export default App;
