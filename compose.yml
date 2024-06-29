@@ -158,6 +158,22 @@ services:
       traefik.http.routers.phpmyadmin.rule: Host(`db.localhost`)
       traefik.http.services.phpmyadmin.loadbalancer.server.port: 80
 
+
+
+  localstack:
+    image: localstack/localstack
+    ports:
+      - "4566:4566"
+      - "4571:4571"
+    environment:
+      - SERVICES=s3
+      - DEBUG=1
+      - DATA_DIR=/tmp/localstack/data
+      - LAMBDA_EXECUTOR=local
+      - AWS_REGION=us-east-1
+    volumes:
+      - localstack-data:/tmp/localstack/data
+
 ###################################################
 # Volumes
 #
@@ -167,3 +183,4 @@ services:
 ###################################################
 volumes:
   todo-mysql-data:
+  localstack-data:
