@@ -75,7 +75,11 @@ services:
       MYSQL_USER: root
       MYSQL_PASSWORD: secret
       MYSQL_DB: todos
-    labels:
+    AWS_ACCESS_KEY_ID: fake_access_key
+    AWS_SECRET_ACCESS_KEY: fake_secret_key
+    AWS_REGION: us-east-1
+    AWS_S3_ENDPOINT: http://localstack:4566 
+   labels:
       traefik.http.routers.backend.rule: Host(`localhost`) && PathPrefix(`/api`)
       traefik.http.services.backend.loadbalancer.server.port: 3000
     develop:
@@ -83,6 +87,7 @@ services:
         - action: sync
           path: .
           target: /src
+
 
   ###################################################
   # Service: client
@@ -104,6 +109,11 @@ services:
       target: dev
     volumes:
       - ./client:/usr/local/app
+    environment:
+      AWS_ACCESS_KEY_ID: fake_access_key
+      AWS_SECRET_ACCESS_KEY: fake_secret_key
+      AWS_REGION: us-east-1
+      AWS_S3_ENDPOINT: http://localstack:4566
     labels:
       traefik.http.routers.client.rule: Host(`localhost`)
       traefik.http.services.client.loadbalancer.server.port: 5173
